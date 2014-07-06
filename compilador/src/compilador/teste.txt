@@ -1,0 +1,19 @@
+programa teste
+inicio
+//testando comentario de linha;dfd*//**/fefe f fe f e       ff
+/* teste comentario multi-linha
+testando novamente /* o texto */comentado */
+real: _numero, real3;
+inteiro: _numero2;
+caractere: texto;
+const constante 30;
+texto <- (2+2);
+leia(texto, real3,teste);
+escreva(2+2, 3>teste, (numero > numero2));
+se ((num1 + num2) > 2 ou nao num3 > num4) entao leia (var1); leia (var1);leia (var1); senao leia (var1); leia (var1);leia (var1); fim se;
+avalie(var1 < var2) caso 2 : leia (var1); leia (var1); leia (var1); senao : leia (var1); leia (var1);leia (var1); fim avalie;
+enquanto(var > 2) faca leia (var1); leia (var1); leia (var1); fim enquanto;
+repita leia (var1); leia (var1); leia (var1); ate (var > 2);
+para var1 de 1 ate 10 faca enquanto(var > 2) faca leia (var1); leia (var1); leia (var1); fim enquanto; repita leia (var1); leia (var1); leia (var1); ate (var > 2); fim para;
+para var1 de 1 passo 2 ate 10 faca enquanto(var > 2) faca leia (var1); leia (var1); leia (var1); fim enquanto; repita leia (var1); leia (var1); leia (var1); ate (var > 2); fim para;
+fim.

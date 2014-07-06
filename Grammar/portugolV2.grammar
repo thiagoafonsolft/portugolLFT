@@ -1,0 +1,268 @@
+Package compilador;
+
+Helpers
+
+tudo = [0..127];
+
+minuscula = ['a'..'z'];
+maiuscula = ['A'..'Z'];
+letra = [minuscula + maiuscula];
+numero = ['0'..'9'];
+
+underline = '_';
+tab = 9;
+lf = 10;
+cr = 13;
+quebra = cr | lf | cr lf;
+branco = (' ' | tab | quebra)+;
+caracter = [tudo - [cr + lf]];
+
+v_string = [[[0..127] - [cr + lf]] - '''];
+nao_estrela =    [caracter - '*'] | quebra;
+nao_estrela_nao_barra = [caracter - ['*' + '/']] | quebra;
+comentario_linha = '//' [tudo - [cr + lf]]* quebra?;
+comentario_multi = '/*' nao_estrela+ '*'+ (nao_estrela_nao_barra nao_estrela* '*'+)* '/';
+
+States
+normal,
+comentario;
+
+Tokens
+
+{normal->comentario, comentario} comentario = '/*';
+{comentario} comentario_fim = '*/';
+{comentario} comentario_corpo = nao_estrela_nao_barra*;
+
+comentario_linha = comentario_linha;
+branco = branco;
+
+programa = 'programa';
+inicio = 'inicio';
+fim_programa = 'fim.';
+
+doispontos = ':';
+virgula = ',';
+pontovirgula = ';';
+abrecolchete = '[';
+fechacolchete = ']';
+abreparentese = '(';
+fechaparentese = ')';
+atribuicao = '<-';
+
+const = 'const';
+inteiro = 'inteiro';
+real = 'real';
+caractere = 'caractere';
+
+n_inteiro = numero+;
+n_real = numero+ '.' numero+;
+string = ''' v_string* ''';
+
+adicao = '+';
+subtracao = '-';
+multiplicacao = '*';
+divisao = '/';
+
+leia = 'leia';
+escreva = 'escreva';
+se = 'se';
+entao = 'entao';
+senao = 'senao';
+fimse = 'fim se';
+enquanto = 'enquanto';
+fimenquanto = 'fim enquanto';
+faca = 'faca';
+repita = 'repita';
+de = 'de';
+ate = 'ate';
+avalie = 'avalie';
+fimavalie = 'fim avalie';
+caso = 'caso';
+para = 'para';
+fimpara = 'fim para';
+passo = 'passo';
+
+e = 'e';
+ou = 'ou';
+xor = 'xor';
+igual = '=';
+diferente = '<>';
+menor = '<';
+maior = '>';
+menorigual = '<=';
+maiorigual = '>=';
+negacao = 'nao';
+
+id = (underline | letra)(letra | numero | underline)*;
+
+Ignored Tokens
+branco,comentario_linha,comentario;
+
+
+Productions
+
+    programa =
+        programa_inicio declaracao_op comando_op fim_programa ;
+
+	programa_inicio =
+		T.programa id inicio ;					
+		
+	declaracao_op =
+		{lista} declaracao_lista |
+		{empty} ;
+		
+	comando_op =
+		{lista} comando_lista |
+		{empty} ;
+	
+	declaracao_lista =
+		{dec_lista} declaracao_lista declaracao |
+		{declaracao} declaracao ;
+
+	comando_lista =
+		{com_lista} comando_lista comando |
+		{comando} comando ;		
+	
+    declaracao =
+        {tipo} tipo doispontos var_virgula_op var pontovirgula |
+		{const} const id valor pontovirgula;		
+		
+	tipo =
+		{real} real |
+		{inteiro} inteiro |
+		{caractere} caractere ;
+		
+	var =
+		{id} id | 
+		{vetor} id abrecolchete n_inteiro fechacolchete ;	
+	
+	var_virgula_op =
+		{lista} var_virgula_lista |
+		{empty} ;
+		
+	var_virgula_lista =
+		{virgula_lista} var_virgula_lista var_virgula |
+		{var_virgula} var_virgula;
+	
+	var_virgula =
+		var virgula;
+		
+	valor =
+		{string} string | 
+		{n_real} n_real |
+		{n_inteiro} n_inteiro ;
+			
+	comando =
+		{atribuicao} var atribuicao exp pontovirgula |
+		{leia} leia abreparentese var_virgula_op var fechaparentese pontovirgula |
+		{escreva} escreva abreparentese exp_virgula_op exp fechaparentese pontovirgula |	
+		{se} se abreparentese exp_logica_lista fechaparentese entao comando_op_lista senao_op fimse pontovirgula |
+		{avalie} avalie abreparentese exp fechaparentese caso_valor_op senao_doispontos_op fimavalie pontovirgula |
+		{enquanto} enquanto abreparentese exp_logica_lista fechaparentese faca comando_op_lista fimenquanto pontovirgula |
+		{repita} repita comando_op_lista ate abreparentese exp_logica_lista fechaparentese pontovirgula |
+		{para} para_inicio para_fim |
+		{passo} para_inicio passo n_inteiro para_fim ;
+			
+	comando_op_lista =
+		{lista} comando_op_lista comando |
+		{comando} comando ;	
+		
+	senao_op =
+		{senao} senao_comando |
+		{empty} ;
+		
+	senao_doispontos_op =
+		{senao} senao_doispontos |
+		{empty} ;
+		
+	senao_comando =
+		senao comando_op_lista ;
+		
+	senao_doispontos =
+		senao doispontos comando_op_lista ;
+	
+	caso_valor_op =
+		{caso} caso_valor_lista |
+		{empty} ;
+	
+	caso_valor_lista =
+		{caso_valor_lista} caso_valor_lista caso_valor |
+		{caso_valor} caso_valor ;
+	
+	caso_valor = 
+		caso valor doispontos comando_op_lista ;
+	
+	para_inicio =
+		para var de n_inteiro ;
+		
+	para_fim =
+		ate n_inteiro faca comando_op_lista fimpara pontovirgula ;
+		
+	exp = 		
+		{soma_exp} soma_exp |
+		{subtracaoexp} subtracao exp |
+		{exp_logica} exp_logica ;
+		
+	soma_relacional =
+		soma_exp relacional ;
+
+	soma_exp =
+		{soma} soma_exp soma termo |
+		{termo} termo ;
+	
+	termo =
+		{mult} termo mult fator |
+		{fator} fator ;
+	
+	exp_virgula_op =
+		{virgula} exp_virugla_lista |
+		{empty} ;
+		
+	exp_virugla_lista =
+		{lista} exp_virugla_lista exp_virgula |
+		{exp_virgula} exp_virgula ;
+	
+	exp_virgula =
+		exp virgula;
+		
+	exp_logica_lista =
+		{lista} exp_logica_lista exp_logica |
+		{exp_logica} exp_logica ;
+		
+	exp_logica =		
+		{relacional} exp_logica_original |
+		{negacao} negacao exp_logica |
+		{logico} exp_logica_original logico_eouxor ;
+		
+	exp_logica_original =
+		soma_relacional soma_exp ;
+		
+	soma = 
+		{adicao} adicao |
+		{subtracao} subtracao ;
+	
+	mult =
+		{multiplicacao} multiplicacao |
+		{divisao} divisao ;
+		
+	logico_eouxor =
+		op_logico exp_logica ;
+		
+	op_logico =
+		{e} e |
+		{ou} ou |
+		{xor} xor ;
+	
+	relacional =
+		{igual} igual |
+		{diferente} diferente |
+		{menorigual} menorigual |
+		{maiorigual} maiorigual | 
+		{menor} menor |
+		{maior} maior ;
+	
+	fator =
+		{exp} abreparentese exp fechaparentese |
+		{valor} valor |
+		{var} var ;
+	
