@@ -101,168 +101,256 @@ branco,comentario_linha,comentario;
 
 Productions
 
-    programa =
-        programa_inicio declaracao_op comando_op fim_programa ;
+    programa {-> program} =
+        T.programa [nome]:id inicio declaracao_lista? comando_lista? fim_programa 
+		{-> New program(nome, [declaracao_lista.decl], [comando_lista.comando])} ;	
+					
+	declaracao_lista {-> decl*} =
+		{dec_lista} declaracao_lista declaracao 
+		{-> [declaracao_lista.decl, declaracao.decl]} |
+		{declaracao} declaracao 
+		{-> [declaracao.decl]} ;
 
-	programa_inicio =
-		T.programa id inicio ;					
-		
-	declaracao_op =
-		{lista} declaracao_lista |
-		{empty} ;
-		
-	comando_op =
-		{lista} comando_lista |
-		{empty} ;
+	comando_lista {-> comando*} =
+		{com_lista} comando_lista comando 
+		{-> [comando_lista.comando, comando.comando]} |
+		{comando} comando 
+		{-> [comando.comando]} ;		
 	
-	declaracao_lista =
-		{dec_lista} declaracao_lista declaracao |
-		{declaracao} declaracao ;
-
-	comando_lista =
-		{com_lista} comando_lista comando |
-		{comando} comando ;		
+    declaracao {-> decl} =
+        {tipo} tipo doispontos var_lista pontovirgula 
+		{-> New decl.var(tipo.tipo, [var_lista.var])} |
+		{const} const id [val]:valor pontovirgula
+		{-> New decl.const(id, val)} ;		
 	
-    declaracao =
-        {tipo} tipo doispontos var_virgula_op var pontovirgula |
-		{const} const id valor pontovirgula;		
+	tipo {-> tipo} =
+		{real} [val]:real 
+		{ -> New tipo.real(val)} |
+		{inteiro} [val]:inteiro 
+		{ -> New tipo.inteiro(val)} |
+		{caractere} [val]:caractere 
+		{ -> New tipo.caractere(val)} ;
 		
-	tipo =
-		{real} real |
-		{inteiro} inteiro |
-		{caractere} caractere ;
-		
-	var =
-		{id} id | 
-		{vetor} id abrecolchete n_inteiro fechacolchete ;	
-	
-	var_virgula_op =
-		{lista} var_virgula_lista |
-		{empty} ;
-		
-	var_virgula_lista =
-		{virgula_lista} var_virgula_lista var_virgula |
-		{var_virgula} var_virgula;
-	
-	var_virgula =
-		var virgula;
-		
-	valor =
-		{string} string | 
-		{n_real} n_real |
-		{n_inteiro} n_inteiro ;
+	var {-> var} =
+		{id} [nome]:id 
+		{-> New var.id(nome)} | 
+		{vetor} [nome]:id abrecolchete [inteiro]:n_inteiro fechacolchete 
+		{-> New var.vetor(nome, inteiro)}  ;	
 			
-	comando =
-		{atribuicao} var atribuicao exp pontovirgula |
-		{leia} leia abreparentese var_virgula_op var fechaparentese pontovirgula |
-		{escreva} escreva abreparentese exp_virgula_op exp fechaparentese pontovirgula |	
-		{se} se abreparentese exp_logica_lista fechaparentese entao comando_op_lista senao_op fimse pontovirgula |
-		{avalie} avalie abreparentese exp fechaparentese caso_valor_op senao_doispontos_op fimavalie pontovirgula |
-		{enquanto} enquanto abreparentese exp_logica_lista fechaparentese faca comando_op_lista fimenquanto pontovirgula |
-		{repita} repita comando_op_lista ate abreparentese exp_logica_lista fechaparentese pontovirgula |
-		{para} para_inicio para_fim |
-		{passo} para_inicio passo n_inteiro para_fim ;
+	var_lista {-> var*} =
+		{lista} var_lista virgula var 
+		{-> [var_lista.var, var.var]} |
+		{var} var 
+		{-> [var.var]} ;
+		
+	valor {-> valor} =
+		{string} [val]:string 
+		{-> New valor.string(val)} | 
+		{n_real} [val]:n_real 
+		{-> New valor.n_real(val)} |
+		{n_inteiro} [val]:n_inteiro 
+		{-> New valor.n_inteiro(val)} ;
 			
-	comando_op_lista =
-		{lista} comando_op_lista comando |
-		{comando} comando ;	
+	comando {-> comando} =
+		{atribuicao} var atribuicao expressao pontovirgula 
+		{-> New comando.atribuir(var, expressao)} |
+		{leia} leia abreparentese var_lista fechaparentese pontovirgula 
+		{-> New comando.leia([var_lista.var])} |
+		{escreva} escreva abreparentese exp_lista fechaparentese pontovirgula 
+		{-> New comando.escreva([exp_lista.expressao])} |	
+		{se} se abreparentese exp_logica fechaparentese entao comando_lista fimse pontovirgula 
+		{-> New comando.se(exp_logica, [comando_lista.comando])} |
+		{se_senao} se abreparentese exp_logica fechaparentese entao [if]:comando_lista senao [else]:comando_lista fimse pontovirgula 
+		{-> New comando.sesenao(exp_logica, [if.comando], [else.comando])} |
+		{avalie} avalie abreparentese expressao fechaparentese caso_valor_lista? fimavalie pontovirgula 
+		{-> New comando.avalie(expressao, [caso_valor_lista.valor], [caso_valor_lista.comando])} |
+		{avalie_senao} avalie abreparentese expressao fechaparentese caso_valor_lista? senao doispontos comando_lista fimavalie pontovirgula 
+		{-> New comando.avaliesenao(expressao, [caso_valor_lista.valor], [caso_valor_lista.comando], [comando_lista.comando])} |
+		{enquanto} enquanto abreparentese exp_logica fechaparentese faca comando_lista fimenquanto pontovirgula 
+		{-> New comando.enquanto(exp_logica, [comando_lista.comando])} |
+		{repita} repita comando_lista ate abreparentese exp_logica fechaparentese pontovirgula 
+		{-> New comando.repita([comando_lista.comando], exp_logica)} |
+		{para} para var de [left]:n_inteiro ate [right]:n_inteiro faca comando_lista fimpara pontovirgula 
+		{-> New comando.para(var, left, right, [comando_lista.comando])} |
+		{para_passo} para var de n_inteiro passo [left]:n_inteiro ate [right]:n_inteiro faca comando_lista fimpara pontovirgula 
+		{-> New comando.parapasso(var, n_inteiro, left, right, [comando_lista.comando])} ;			
 		
-	senao_op =
-		{senao} senao_comando |
-		{empty} ;
+	caso_valor_lista {-> valor* comando*} =
+		{caso_valor_lista} caso_valor_lista caso [val]:valor doispontos comando_lista 
+		{ -> [val.valor] [comando_lista.comando]} |
+		{caso_valor} caso [val]:valor doispontos comando_lista 
+		{ -> [val.valor] [comando_lista.comando]} ;
 		
-	senao_doispontos_op =
-		{senao} senao_doispontos |
-		{empty} ;
-		
-	senao_comando =
-		senao comando_op_lista ;
-		
-	senao_doispontos =
-		senao doispontos comando_op_lista ;
-	
-	caso_valor_op =
-		{caso} caso_valor_lista |
-		{empty} ;
-	
-	caso_valor_lista =
-		{caso_valor_lista} caso_valor_lista caso_valor |
-		{caso_valor} caso_valor ;
-	
-	caso_valor = 
-		caso valor doispontos comando_op_lista ;
-	
-	para_inicio =
-		para var de n_inteiro ;
-		
-	para_fim =
-		ate n_inteiro faca comando_op_lista fimpara pontovirgula ;
-		
-	exp = 		
-		{soma_exp} soma_exp |
-		{subtracaoexp} subtracao exp |
-		{exp_logica} exp_logica ;
-		
-	soma_relacional =
-		soma_exp relacional ;
+	exp_lista {-> expressao*} =
+		{lista} exp_lista virgula expressao 
+		{-> [exp_lista.expressao, expressao]} |
+		{exp} expressao 
+		{-> [expressao]} ;
 
-	soma_exp =
-		{soma} soma_exp soma termo |
-		{termo} termo ;
+	expressao {-> expressao} =
+		{aritmetica} exp 
+		{-> New expressao.aritmetica(exp)} |
+		{logica} exp_logica 
+		{-> New expressao.logica(exp_logica)} ;
 	
-	termo =
-		{mult} termo mult fator |
-		{fator} fator ;
+	exp {-> exp} =		
+		{exp} soma_exp 
+		{-> soma_exp.exp} ;
+				
+	exp_logica {-> exp_logica} = 		
+		{logico} logica_ou 
+		{-> logica_ou.exp_logica } ;
+		
+	logica_ou {-> exp_logica} =		
+		{log_ou} logica_igualdade ou exp_logica 
+		{-> New exp_logica.oulogico(logica_igualdade.exp_logica, exp_logica)} |
+		{log_xor} logica_xor
+		{-> logica_xor.exp_logica } ;
+		
+	logica_xor {-> exp_logica} =		
+		{log_xor} logica_igualdade xor exp_logica 
+		{-> New exp_logica.xorlogico(logica_igualdade.exp_logica, exp_logica)} |
+		{log_e} logica_e
+		{-> logica_e.exp_logica } ;
+		
+	logica_e {-> exp_logica} =		
+		{log_e} logica_igualdade e exp_logica 
+		{-> New exp_logica.elogico(logica_igualdade.exp_logica, exp_logica)} |
+		{igualdade} logica_igualdade 
+		{-> logica_igualdade.exp_logica } ;
+		
+	logica_igualdade {-> exp_logica} =		
+		{igual} [left]:soma_exp igual [right]:soma_exp 
+		{-> New exp_logica.igual(left.exp, right.exp)} |
+		{igual_logico} [left]:fator_logico igual [right]:fator_logico 
+		{-> New exp_logica.iguallogica(left.exp_logica, right.exp_logica)} |
+		{diferente} [left]:soma_exp diferente [right]:soma_exp 
+		{-> New exp_logica.diferente(left.exp, right.exp)} |
+		{diferente_logico} [left]:fator_logico diferente [right]:fator_logico 
+		{-> New exp_logica.diferentelogica(left.exp_logica, right.exp_logica)} |
+		{logmaior} logica_maior 
+		{-> logica_maior.exp_logica } ;
+		
+	logica_maior {-> exp_logica} =		
+		{maior} [left]:soma_exp maior [right]:soma_exp 
+		{-> New exp_logica.maior(left.exp, right.exp)} |
+		{maiorigual} [left]:soma_exp maiorigual [right]:soma_exp 
+		{-> New exp_logica.maiorigual(left.exp, right.exp)} |
+		{logmenor} logica_menor 
+		{-> logica_menor.exp_logica } ;
 	
-	exp_virgula_op =
-		{virgula} exp_virugla_lista |
-		{empty} ;
+	logica_menor {-> exp_logica} =		
+		{menor} [left]:soma_exp menor [right]:soma_exp 
+		{-> New exp_logica.menor(left.exp, right.exp)} |
+		{menorigual} [left]:soma_exp menorigual [right]:soma_exp 
+		{-> New exp_logica.menorigual(left.exp, right.exp)} |
+		{unario} logico_unario 
+		{-> logico_unario.exp_logica } ;
 		
-	exp_virugla_lista =
-		{lista} exp_virugla_lista exp_virgula |
-		{exp_virgula} exp_virgula ;
+	logico_unario {-> exp_logica} =	
+		{neg_repete} negacao logica_igualdade 
+		{-> New exp_logica.negarlogica(logica_igualdade.exp_logica)} |		
+		{fator} fator_logico
+		{-> fator_logico.exp_logica } ;
+		
+	fator_logico {-> exp_logica} =
+		{par_log} abreparentese exp_logica fechaparentese
+		{-> exp_logica } ;
+		
+	soma_exp {-> exp} =
+		{adicao} soma_exp adicao termo 
+		{-> New exp.soma(soma_exp.exp, termo.exp )} |
+		{subtracao} soma_exp subtracao termo 
+		{-> New exp.sub(soma_exp.exp, termo.exp )} |
+		{prox} termo 
+		{-> termo.exp } ;	
 	
-	exp_virgula =
-		exp virgula;
+	termo {-> exp} =
+		{multiplicacao} termo multiplicacao unario 
+		{-> New exp.mult(termo.exp, unario.exp )} |
+		{divisao} termo divisao unario 
+		{-> New exp.div(termo.exp, unario.exp )} |
+		{prox} unario 
+		{-> unario.exp } ;
 		
-	exp_logica_lista =
-		{lista} exp_logica_lista exp_logica |
-		{exp_logica} exp_logica ;
+	unario {-> exp} =	
+		{sub_exp} subtracao unario 
+		{-> New exp.menosexp(unario.exp)} |
+		{fatorexp} fator 
+		{-> fator.exp } ;
 		
-	exp_logica =		
-		{relacional} exp_logica_original |
-		{negacao} negacao exp_logica |
-		{logico} exp_logica_original logico_eouxor ;
-		
-	exp_logica_original =
-		soma_relacional soma_exp ;
-		
-	soma = 
-		{adicao} adicao |
-		{subtracao} subtracao ;
+	fator {-> exp} =
+		{exp} abreparentese exp fechaparentese 
+		{-> exp } |
+		{valor} valor 
+		{-> New exp.valor(valor)} |
+		{var} var 
+		{-> New exp.var(var)} ;	
+					
+
+Abstract Syntax Tree
+	program
+		= id decl* comando*;
+
+	decl
+		= {var} tipo var*
+		| {const} id valor ;		
 	
-	mult =
-		{multiplicacao} multiplicacao |
-		{divisao} divisao ;
+	var 
+		= {id} id 
+		| {vetor} id n_inteiro ;			
+	
+	tipo 
+		= {real} real
+		| {inteiro} inteiro
+		| {caractere} caractere ;
 		
-	logico_eouxor =
-		op_logico exp_logica ;
+	valor 
+		= {string} string 
+		| {n_real} n_real 
+		| {n_inteiro} n_inteiro ;
 		
-	op_logico =
-		{e} e |
-		{ou} ou |
-		{xor} xor ;
+	comando 
+		= {atribuir} var expressao
+		| {leia} var+
+		| {escreva} expressao+
+		| {se} exp_logica comando+
+		| {sesenao} exp_logica [entao]:comando+ [senao]:comando+
+		| {avalie} expressao valor* comando*
+		| {avaliesenao} expressao valor* [caso]:comando* [senao]:comando*
+		| {enquanto} exp_logica comando+
+		| {repita} comando+ exp_logica
+		| {para} var [left]:n_inteiro [right]:n_inteiro comando+
+		| {parapasso} var n_inteiro [left]:n_inteiro [right]:n_inteiro comando+ ;
+
+	expressao 
+		= {aritmetica} exp
+		| {logica} exp_logica ;
+		
+	exp 
+		= {valor} valor
+		| {var} var
+		| {exppar} exp
+		| {menosexp} exp
+		| {soma} [left]:exp [right]:exp
+		| {sub} [left]:exp [right]:exp
+		| {mult} [left]:exp [right]:exp
+		| {div} [left]:exp [right]:exp
+		| {logica} exp_logica 
+		| {exp} expressao ;
 	
-	relacional =
-		{igual} igual |
-		{diferente} diferente |
-		{menorigual} menorigual |
-		{maiorigual} maiorigual | 
-		{menor} menor |
-		{maior} maior ;
-	
-	fator =
-		{exp} abreparentese exp fechaparentese |
-		{valor} valor |
-		{var} var ;
-	
+	exp_logica
+		= {parlogica} exp_logica
+		| {igual} [left]:exp [right]:exp
+		| {iguallogica} [left]:exp_logica [right]:exp_logica
+		| {diferente} [left]:exp [right]:exp
+		| {diferentelogica} [left]:exp_logica [right]:exp_logica
+		| {menorigual} [left]:exp [right]:exp
+		| {maiorigual} [left]:exp [right]:exp
+		| {menor} [left]:exp [right]:exp
+		| {maior} [left]:exp [right]:exp
+		| {negarlogica} exp_logica
+		| {elogico} [left]:exp_logica [right]:exp_logica
+		| {oulogico} [left]:exp_logica [right]:exp_logica
+		| {xorlogico} [lfet]:exp_logica [right]:exp_logica 
+		| {exp} expressao ;

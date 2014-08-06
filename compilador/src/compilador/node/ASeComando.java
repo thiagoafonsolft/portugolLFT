@@ -2,20 +2,14 @@
 
 package compilador.node;
 
+import java.util.*;
 import compilador.analysis.*;
 
 @SuppressWarnings("nls")
 public final class ASeComando extends PComando
 {
-    private TSe _se_;
-    private TAbreparentese _abreparentese_;
-    private PExpLogicaLista _expLogicaLista_;
-    private TFechaparentese _fechaparentese_;
-    private TEntao _entao_;
-    private PComandoOpLista _comandoOpLista_;
-    private PSenaoOp _senaoOp_;
-    private TFimse _fimse_;
-    private TPontovirgula _pontovirgula_;
+    private PExpLogica _expLogica_;
+    private final LinkedList<PComando> _comando_ = new LinkedList<PComando>();
 
     public ASeComando()
     {
@@ -23,34 +17,13 @@ public final class ASeComando extends PComando
     }
 
     public ASeComando(
-        @SuppressWarnings("hiding") TSe _se_,
-        @SuppressWarnings("hiding") TAbreparentese _abreparentese_,
-        @SuppressWarnings("hiding") PExpLogicaLista _expLogicaLista_,
-        @SuppressWarnings("hiding") TFechaparentese _fechaparentese_,
-        @SuppressWarnings("hiding") TEntao _entao_,
-        @SuppressWarnings("hiding") PComandoOpLista _comandoOpLista_,
-        @SuppressWarnings("hiding") PSenaoOp _senaoOp_,
-        @SuppressWarnings("hiding") TFimse _fimse_,
-        @SuppressWarnings("hiding") TPontovirgula _pontovirgula_)
+        @SuppressWarnings("hiding") PExpLogica _expLogica_,
+        @SuppressWarnings("hiding") List<?> _comando_)
     {
         // Constructor
-        setSe(_se_);
+        setExpLogica(_expLogica_);
 
-        setAbreparentese(_abreparentese_);
-
-        setExpLogicaLista(_expLogicaLista_);
-
-        setFechaparentese(_fechaparentese_);
-
-        setEntao(_entao_);
-
-        setComandoOpLista(_comandoOpLista_);
-
-        setSenaoOp(_senaoOp_);
-
-        setFimse(_fimse_);
-
-        setPontovirgula(_pontovirgula_);
+        setComando(_comando_);
 
     }
 
@@ -58,15 +31,8 @@ public final class ASeComando extends PComando
     public Object clone()
     {
         return new ASeComando(
-            cloneNode(this._se_),
-            cloneNode(this._abreparentese_),
-            cloneNode(this._expLogicaLista_),
-            cloneNode(this._fechaparentese_),
-            cloneNode(this._entao_),
-            cloneNode(this._comandoOpLista_),
-            cloneNode(this._senaoOp_),
-            cloneNode(this._fimse_),
-            cloneNode(this._pontovirgula_));
+            cloneNode(this._expLogica_),
+            cloneList(this._comando_));
     }
 
     @Override
@@ -75,16 +41,16 @@ public final class ASeComando extends PComando
         ((Analysis) sw).caseASeComando(this);
     }
 
-    public TSe getSe()
+    public PExpLogica getExpLogica()
     {
-        return this._se_;
+        return this._expLogica_;
     }
 
-    public void setSe(TSe node)
+    public void setExpLogica(PExpLogica node)
     {
-        if(this._se_ != null)
+        if(this._expLogica_ != null)
         {
-            this._se_.parent(null);
+            this._expLogica_.parent(null);
         }
 
         if(node != null)
@@ -97,279 +63,55 @@ public final class ASeComando extends PComando
             node.parent(this);
         }
 
-        this._se_ = node;
+        this._expLogica_ = node;
     }
 
-    public TAbreparentese getAbreparentese()
+    public LinkedList<PComando> getComando()
     {
-        return this._abreparentese_;
+        return this._comando_;
     }
 
-    public void setAbreparentese(TAbreparentese node)
+    public void setComando(List<?> list)
     {
-        if(this._abreparentese_ != null)
+        for(PComando e : this._comando_)
         {
-            this._abreparentese_.parent(null);
+            e.parent(null);
         }
+        this._comando_.clear();
 
-        if(node != null)
+        for(Object obj_e : list)
         {
-            if(node.parent() != null)
+            PComando e = (PComando) obj_e;
+            if(e.parent() != null)
             {
-                node.parent().removeChild(node);
+                e.parent().removeChild(e);
             }
 
-            node.parent(this);
+            e.parent(this);
+            this._comando_.add(e);
         }
-
-        this._abreparentese_ = node;
-    }
-
-    public PExpLogicaLista getExpLogicaLista()
-    {
-        return this._expLogicaLista_;
-    }
-
-    public void setExpLogicaLista(PExpLogicaLista node)
-    {
-        if(this._expLogicaLista_ != null)
-        {
-            this._expLogicaLista_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._expLogicaLista_ = node;
-    }
-
-    public TFechaparentese getFechaparentese()
-    {
-        return this._fechaparentese_;
-    }
-
-    public void setFechaparentese(TFechaparentese node)
-    {
-        if(this._fechaparentese_ != null)
-        {
-            this._fechaparentese_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._fechaparentese_ = node;
-    }
-
-    public TEntao getEntao()
-    {
-        return this._entao_;
-    }
-
-    public void setEntao(TEntao node)
-    {
-        if(this._entao_ != null)
-        {
-            this._entao_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._entao_ = node;
-    }
-
-    public PComandoOpLista getComandoOpLista()
-    {
-        return this._comandoOpLista_;
-    }
-
-    public void setComandoOpLista(PComandoOpLista node)
-    {
-        if(this._comandoOpLista_ != null)
-        {
-            this._comandoOpLista_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._comandoOpLista_ = node;
-    }
-
-    public PSenaoOp getSenaoOp()
-    {
-        return this._senaoOp_;
-    }
-
-    public void setSenaoOp(PSenaoOp node)
-    {
-        if(this._senaoOp_ != null)
-        {
-            this._senaoOp_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._senaoOp_ = node;
-    }
-
-    public TFimse getFimse()
-    {
-        return this._fimse_;
-    }
-
-    public void setFimse(TFimse node)
-    {
-        if(this._fimse_ != null)
-        {
-            this._fimse_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._fimse_ = node;
-    }
-
-    public TPontovirgula getPontovirgula()
-    {
-        return this._pontovirgula_;
-    }
-
-    public void setPontovirgula(TPontovirgula node)
-    {
-        if(this._pontovirgula_ != null)
-        {
-            this._pontovirgula_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._pontovirgula_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._se_)
-            + toString(this._abreparentese_)
-            + toString(this._expLogicaLista_)
-            + toString(this._fechaparentese_)
-            + toString(this._entao_)
-            + toString(this._comandoOpLista_)
-            + toString(this._senaoOp_)
-            + toString(this._fimse_)
-            + toString(this._pontovirgula_);
+            + toString(this._expLogica_)
+            + toString(this._comando_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._se_ == child)
+        if(this._expLogica_ == child)
         {
-            this._se_ = null;
+            this._expLogica_ = null;
             return;
         }
 
-        if(this._abreparentese_ == child)
+        if(this._comando_.remove(child))
         {
-            this._abreparentese_ = null;
-            return;
-        }
-
-        if(this._expLogicaLista_ == child)
-        {
-            this._expLogicaLista_ = null;
-            return;
-        }
-
-        if(this._fechaparentese_ == child)
-        {
-            this._fechaparentese_ = null;
-            return;
-        }
-
-        if(this._entao_ == child)
-        {
-            this._entao_ = null;
-            return;
-        }
-
-        if(this._comandoOpLista_ == child)
-        {
-            this._comandoOpLista_ = null;
-            return;
-        }
-
-        if(this._senaoOp_ == child)
-        {
-            this._senaoOp_ = null;
-            return;
-        }
-
-        if(this._fimse_ == child)
-        {
-            this._fimse_ = null;
-            return;
-        }
-
-        if(this._pontovirgula_ == child)
-        {
-            this._pontovirgula_ = null;
             return;
         }
 
@@ -380,58 +122,28 @@ public final class ASeComando extends PComando
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._se_ == oldChild)
+        if(this._expLogica_ == oldChild)
         {
-            setSe((TSe) newChild);
+            setExpLogica((PExpLogica) newChild);
             return;
         }
 
-        if(this._abreparentese_ == oldChild)
+        for(ListIterator<PComando> i = this._comando_.listIterator(); i.hasNext();)
         {
-            setAbreparentese((TAbreparentese) newChild);
-            return;
-        }
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((PComando) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
 
-        if(this._expLogicaLista_ == oldChild)
-        {
-            setExpLogicaLista((PExpLogicaLista) newChild);
-            return;
-        }
-
-        if(this._fechaparentese_ == oldChild)
-        {
-            setFechaparentese((TFechaparentese) newChild);
-            return;
-        }
-
-        if(this._entao_ == oldChild)
-        {
-            setEntao((TEntao) newChild);
-            return;
-        }
-
-        if(this._comandoOpLista_ == oldChild)
-        {
-            setComandoOpLista((PComandoOpLista) newChild);
-            return;
-        }
-
-        if(this._senaoOp_ == oldChild)
-        {
-            setSenaoOp((PSenaoOp) newChild);
-            return;
-        }
-
-        if(this._fimse_ == oldChild)
-        {
-            setFimse((TFimse) newChild);
-            return;
-        }
-
-        if(this._pontovirgula_ == oldChild)
-        {
-            setPontovirgula((TPontovirgula) newChild);
-            return;
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
         }
 
         throw new RuntimeException("Not a child.");

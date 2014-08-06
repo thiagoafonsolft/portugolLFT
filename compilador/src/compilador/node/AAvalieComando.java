@@ -2,19 +2,15 @@
 
 package compilador.node;
 
+import java.util.*;
 import compilador.analysis.*;
 
 @SuppressWarnings("nls")
 public final class AAvalieComando extends PComando
 {
-    private TAvalie _avalie_;
-    private TAbreparentese _abreparentese_;
-    private PExp _exp_;
-    private TFechaparentese _fechaparentese_;
-    private PCasoValorOp _casoValorOp_;
-    private PSenaoDoispontosOp _senaoDoispontosOp_;
-    private TFimavalie _fimavalie_;
-    private TPontovirgula _pontovirgula_;
+    private PExpressao _expressao_;
+    private final LinkedList<PValor> _valor_ = new LinkedList<PValor>();
+    private final LinkedList<PComando> _comando_ = new LinkedList<PComando>();
 
     public AAvalieComando()
     {
@@ -22,31 +18,16 @@ public final class AAvalieComando extends PComando
     }
 
     public AAvalieComando(
-        @SuppressWarnings("hiding") TAvalie _avalie_,
-        @SuppressWarnings("hiding") TAbreparentese _abreparentese_,
-        @SuppressWarnings("hiding") PExp _exp_,
-        @SuppressWarnings("hiding") TFechaparentese _fechaparentese_,
-        @SuppressWarnings("hiding") PCasoValorOp _casoValorOp_,
-        @SuppressWarnings("hiding") PSenaoDoispontosOp _senaoDoispontosOp_,
-        @SuppressWarnings("hiding") TFimavalie _fimavalie_,
-        @SuppressWarnings("hiding") TPontovirgula _pontovirgula_)
+        @SuppressWarnings("hiding") PExpressao _expressao_,
+        @SuppressWarnings("hiding") List<?> _valor_,
+        @SuppressWarnings("hiding") List<?> _comando_)
     {
         // Constructor
-        setAvalie(_avalie_);
+        setExpressao(_expressao_);
 
-        setAbreparentese(_abreparentese_);
+        setValor(_valor_);
 
-        setExp(_exp_);
-
-        setFechaparentese(_fechaparentese_);
-
-        setCasoValorOp(_casoValorOp_);
-
-        setSenaoDoispontosOp(_senaoDoispontosOp_);
-
-        setFimavalie(_fimavalie_);
-
-        setPontovirgula(_pontovirgula_);
+        setComando(_comando_);
 
     }
 
@@ -54,14 +35,9 @@ public final class AAvalieComando extends PComando
     public Object clone()
     {
         return new AAvalieComando(
-            cloneNode(this._avalie_),
-            cloneNode(this._abreparentese_),
-            cloneNode(this._exp_),
-            cloneNode(this._fechaparentese_),
-            cloneNode(this._casoValorOp_),
-            cloneNode(this._senaoDoispontosOp_),
-            cloneNode(this._fimavalie_),
-            cloneNode(this._pontovirgula_));
+            cloneNode(this._expressao_),
+            cloneList(this._valor_),
+            cloneList(this._comando_));
     }
 
     @Override
@@ -70,16 +46,16 @@ public final class AAvalieComando extends PComando
         ((Analysis) sw).caseAAvalieComando(this);
     }
 
-    public TAvalie getAvalie()
+    public PExpressao getExpressao()
     {
-        return this._avalie_;
+        return this._expressao_;
     }
 
-    public void setAvalie(TAvalie node)
+    public void setExpressao(PExpressao node)
     {
-        if(this._avalie_ != null)
+        if(this._expressao_ != null)
         {
-            this._avalie_.parent(null);
+            this._expressao_.parent(null);
         }
 
         if(node != null)
@@ -92,247 +68,87 @@ public final class AAvalieComando extends PComando
             node.parent(this);
         }
 
-        this._avalie_ = node;
+        this._expressao_ = node;
     }
 
-    public TAbreparentese getAbreparentese()
+    public LinkedList<PValor> getValor()
     {
-        return this._abreparentese_;
+        return this._valor_;
     }
 
-    public void setAbreparentese(TAbreparentese node)
+    public void setValor(List<?> list)
     {
-        if(this._abreparentese_ != null)
+        for(PValor e : this._valor_)
         {
-            this._abreparentese_.parent(null);
+            e.parent(null);
         }
+        this._valor_.clear();
 
-        if(node != null)
+        for(Object obj_e : list)
         {
-            if(node.parent() != null)
+            PValor e = (PValor) obj_e;
+            if(e.parent() != null)
             {
-                node.parent().removeChild(node);
+                e.parent().removeChild(e);
             }
 
-            node.parent(this);
+            e.parent(this);
+            this._valor_.add(e);
         }
-
-        this._abreparentese_ = node;
     }
 
-    public PExp getExp()
+    public LinkedList<PComando> getComando()
     {
-        return this._exp_;
+        return this._comando_;
     }
 
-    public void setExp(PExp node)
+    public void setComando(List<?> list)
     {
-        if(this._exp_ != null)
+        for(PComando e : this._comando_)
         {
-            this._exp_.parent(null);
+            e.parent(null);
         }
+        this._comando_.clear();
 
-        if(node != null)
+        for(Object obj_e : list)
         {
-            if(node.parent() != null)
+            PComando e = (PComando) obj_e;
+            if(e.parent() != null)
             {
-                node.parent().removeChild(node);
+                e.parent().removeChild(e);
             }
 
-            node.parent(this);
+            e.parent(this);
+            this._comando_.add(e);
         }
-
-        this._exp_ = node;
-    }
-
-    public TFechaparentese getFechaparentese()
-    {
-        return this._fechaparentese_;
-    }
-
-    public void setFechaparentese(TFechaparentese node)
-    {
-        if(this._fechaparentese_ != null)
-        {
-            this._fechaparentese_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._fechaparentese_ = node;
-    }
-
-    public PCasoValorOp getCasoValorOp()
-    {
-        return this._casoValorOp_;
-    }
-
-    public void setCasoValorOp(PCasoValorOp node)
-    {
-        if(this._casoValorOp_ != null)
-        {
-            this._casoValorOp_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._casoValorOp_ = node;
-    }
-
-    public PSenaoDoispontosOp getSenaoDoispontosOp()
-    {
-        return this._senaoDoispontosOp_;
-    }
-
-    public void setSenaoDoispontosOp(PSenaoDoispontosOp node)
-    {
-        if(this._senaoDoispontosOp_ != null)
-        {
-            this._senaoDoispontosOp_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._senaoDoispontosOp_ = node;
-    }
-
-    public TFimavalie getFimavalie()
-    {
-        return this._fimavalie_;
-    }
-
-    public void setFimavalie(TFimavalie node)
-    {
-        if(this._fimavalie_ != null)
-        {
-            this._fimavalie_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._fimavalie_ = node;
-    }
-
-    public TPontovirgula getPontovirgula()
-    {
-        return this._pontovirgula_;
-    }
-
-    public void setPontovirgula(TPontovirgula node)
-    {
-        if(this._pontovirgula_ != null)
-        {
-            this._pontovirgula_.parent(null);
-        }
-
-        if(node != null)
-        {
-            if(node.parent() != null)
-            {
-                node.parent().removeChild(node);
-            }
-
-            node.parent(this);
-        }
-
-        this._pontovirgula_ = node;
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._avalie_)
-            + toString(this._abreparentese_)
-            + toString(this._exp_)
-            + toString(this._fechaparentese_)
-            + toString(this._casoValorOp_)
-            + toString(this._senaoDoispontosOp_)
-            + toString(this._fimavalie_)
-            + toString(this._pontovirgula_);
+            + toString(this._expressao_)
+            + toString(this._valor_)
+            + toString(this._comando_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._avalie_ == child)
+        if(this._expressao_ == child)
         {
-            this._avalie_ = null;
+            this._expressao_ = null;
             return;
         }
 
-        if(this._abreparentese_ == child)
+        if(this._valor_.remove(child))
         {
-            this._abreparentese_ = null;
             return;
         }
 
-        if(this._exp_ == child)
+        if(this._comando_.remove(child))
         {
-            this._exp_ = null;
-            return;
-        }
-
-        if(this._fechaparentese_ == child)
-        {
-            this._fechaparentese_ = null;
-            return;
-        }
-
-        if(this._casoValorOp_ == child)
-        {
-            this._casoValorOp_ = null;
-            return;
-        }
-
-        if(this._senaoDoispontosOp_ == child)
-        {
-            this._senaoDoispontosOp_ = null;
-            return;
-        }
-
-        if(this._fimavalie_ == child)
-        {
-            this._fimavalie_ = null;
-            return;
-        }
-
-        if(this._pontovirgula_ == child)
-        {
-            this._pontovirgula_ = null;
             return;
         }
 
@@ -343,52 +159,46 @@ public final class AAvalieComando extends PComando
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._avalie_ == oldChild)
+        if(this._expressao_ == oldChild)
         {
-            setAvalie((TAvalie) newChild);
+            setExpressao((PExpressao) newChild);
             return;
         }
 
-        if(this._abreparentese_ == oldChild)
+        for(ListIterator<PValor> i = this._valor_.listIterator(); i.hasNext();)
         {
-            setAbreparentese((TAbreparentese) newChild);
-            return;
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((PValor) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
+
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
         }
 
-        if(this._exp_ == oldChild)
+        for(ListIterator<PComando> i = this._comando_.listIterator(); i.hasNext();)
         {
-            setExp((PExp) newChild);
-            return;
-        }
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((PComando) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
 
-        if(this._fechaparentese_ == oldChild)
-        {
-            setFechaparentese((TFechaparentese) newChild);
-            return;
-        }
-
-        if(this._casoValorOp_ == oldChild)
-        {
-            setCasoValorOp((PCasoValorOp) newChild);
-            return;
-        }
-
-        if(this._senaoDoispontosOp_ == oldChild)
-        {
-            setSenaoDoispontosOp((PSenaoDoispontosOp) newChild);
-            return;
-        }
-
-        if(this._fimavalie_ == oldChild)
-        {
-            setFimavalie((TFimavalie) newChild);
-            return;
-        }
-
-        if(this._pontovirgula_ == oldChild)
-        {
-            setPontovirgula((TPontovirgula) newChild);
-            return;
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
         }
 
         throw new RuntimeException("Not a child.");

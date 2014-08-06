@@ -50,6 +50,8 @@ public class formPrincipal extends javax.swing.JFrame {
         txtRetorno = new javax.swing.JTextArea();
         btnAnalisarLexico = new javax.swing.JButton();
         btnAnaliseAST = new javax.swing.JButton();
+        btnAnaliseCST = new javax.swing.JButton();
+        lblLocalizacao = new javax.swing.JLabel();
 
         javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
         jDialog1.getContentPane().setLayout(jDialog1Layout);
@@ -90,6 +92,11 @@ public class formPrincipal extends javax.swing.JFrame {
 
         txtCodigo.setColumns(20);
         txtCodigo.setRows(5);
+        txtCodigo.addCaretListener(new javax.swing.event.CaretListener() {
+            public void caretUpdate(javax.swing.event.CaretEvent evt) {
+                txtCodigoCaretUpdate(evt);
+            }
+        });
         jScrollPane1.setViewportView(txtCodigo);
 
         txtLocalArquivo.setEditable(false);
@@ -120,6 +127,15 @@ public class formPrincipal extends javax.swing.JFrame {
             }
         });
 
+        btnAnaliseCST.setText("Analisar CST");
+        btnAnaliseCST.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAnaliseCSTActionPerformed(evt);
+            }
+        });
+
+        lblLocalizacao.setText("1,1");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -127,19 +143,23 @@ public class formPrincipal extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 746, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(txtLocalArquivo)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnCarregarArquivo))))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(158, 158, 158)
                         .addComponent(btnAnalisarLexico)
-                        .addGap(50, 50, 50)
-                        .addComponent(btnAnaliseAST)))
+                        .addGap(48, 48, 48)
+                        .addComponent(btnAnaliseCST)
+                        .addGap(42, 42, 42)
+                        .addComponent(btnAnaliseAST))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblLocalizacao)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 746, Short.MAX_VALUE)
+                                .addComponent(jScrollPane1)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                    .addComponent(txtLocalArquivo)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(btnCarregarArquivo))))))
                 .addContainerGap(27, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -151,13 +171,16 @@ public class formPrincipal extends javax.swing.JFrame {
                     .addComponent(txtLocalArquivo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblLocalizacao)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAnalisarLexico)
-                    .addComponent(btnAnaliseAST))
+                    .addComponent(btnAnaliseAST)
+                    .addComponent(btnAnaliseCST))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
         pack();
@@ -202,8 +225,9 @@ public class formPrincipal extends javax.swing.JFrame {
         Lexico lex = new Lexico(pushbackReader);
         Sintatico sint = new Sintatico(lex);
         try {
-            txtRetorno.setText(sint.Analisar());
+            txtRetorno.setText(sint.AnalisarAST());
         } catch (LexerException ex) {
+            txtRetorno.setText(ex.getMessage());
             Logger.getLogger(formPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(formPrincipal.class.getName()).log(Level.SEVERE, null, ex);
@@ -212,6 +236,40 @@ public class formPrincipal extends javax.swing.JFrame {
             Logger.getLogger(formPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnAnaliseASTActionPerformed
+
+    private void btnAnaliseCSTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnaliseCSTActionPerformed
+        PushbackReader pushbackReader = new PushbackReader(new StringReader(txtCodigo.getText()));
+        Lexico lex = new Lexico(pushbackReader);
+        Sintatico sint = new Sintatico(lex);
+        try {
+            txtRetorno.setText(sint.AnalisarCST());
+        } catch (LexerException ex) {
+            txtRetorno.setText(ex.getMessage());
+            Logger.getLogger(formPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(formPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParserException ex) {
+            txtRetorno.setText(ex.getMessage().replace("expecting", "esperando"));
+            Logger.getLogger(formPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnAnaliseCSTActionPerformed
+
+    private void txtCodigoCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_txtCodigoCaretUpdate
+        int caretpos = 0;
+        int linha = 1;
+        int coluna = 1;
+        try
+        {
+            caretpos = txtCodigo.getCaretPosition();
+            linha = txtCodigo.getLineOfOffset(caretpos);
+            coluna = caretpos - txtCodigo.getLineStartOffset(linha);
+            coluna += 1;
+            linha += 1;
+        }
+        catch(Exception ex) { }
+        
+        lblLocalizacao.setText(linha + "," + coluna);
+    }//GEN-LAST:event_txtCodigoCaretUpdate
 
     private void carregarArquivo() {
         JFileChooser fileChooser = new JFileChooser();
@@ -268,11 +326,13 @@ public class formPrincipal extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAnalisarLexico;
     private javax.swing.JButton btnAnaliseAST;
+    private javax.swing.JButton btnAnaliseCST;
     private javax.swing.JButton btnCarregarArquivo;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JDialog jDialog2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblLocalizacao;
     private javax.swing.JTextArea txtCodigo;
     private javax.swing.JTextField txtLocalArquivo;
     private javax.swing.JTextArea txtRetorno;

@@ -15,13 +15,23 @@ import java.io.PushbackReader;
 
 public class Sintatico extends Parser {
 
+    public static String texto;
+    
     public Sintatico(Lexico lexer) {
         super(lexer);
     }
 
-    public String Analisar() throws LexerException, LexerException, IOException, ParserException {
+    public String AnalisarCST() throws LexerException, LexerException, IOException, ParserException {
         Start tree = parse();
-        System.out.println("Arvore Formada!!\n" + tree.toString());        
-        return "Arvore Formada!!\n" + tree.toString();
+        System.out.println("Arvore Concreta Formada!!");        
+        return "Arvore Concreta Formada!!";
+    }   
+    
+        public String AnalisarAST() throws LexerException, LexerException, IOException, ParserException {
+        texto = "";
+        Start tree = parse();                           
+        System.out.println("Arvore Formada!!");                
+        tree.getPProgram().apply(new Organizador());
+        return "Arvore Formada!! \n" + texto;
     }
 }

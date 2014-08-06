@@ -2,13 +2,16 @@
 
 package compilador.node;
 
+import java.util.*;
 import compilador.analysis.*;
 
 @SuppressWarnings("nls")
 public final class AParaComando extends PComando
 {
-    private PParaInicio _paraInicio_;
-    private PParaFim _paraFim_;
+    private PVar _var_;
+    private TNInteiro _left_;
+    private TNInteiro _right_;
+    private final LinkedList<PComando> _comando_ = new LinkedList<PComando>();
 
     public AParaComando()
     {
@@ -16,13 +19,19 @@ public final class AParaComando extends PComando
     }
 
     public AParaComando(
-        @SuppressWarnings("hiding") PParaInicio _paraInicio_,
-        @SuppressWarnings("hiding") PParaFim _paraFim_)
+        @SuppressWarnings("hiding") PVar _var_,
+        @SuppressWarnings("hiding") TNInteiro _left_,
+        @SuppressWarnings("hiding") TNInteiro _right_,
+        @SuppressWarnings("hiding") List<?> _comando_)
     {
         // Constructor
-        setParaInicio(_paraInicio_);
+        setVar(_var_);
 
-        setParaFim(_paraFim_);
+        setLeft(_left_);
+
+        setRight(_right_);
+
+        setComando(_comando_);
 
     }
 
@@ -30,8 +39,10 @@ public final class AParaComando extends PComando
     public Object clone()
     {
         return new AParaComando(
-            cloneNode(this._paraInicio_),
-            cloneNode(this._paraFim_));
+            cloneNode(this._var_),
+            cloneNode(this._left_),
+            cloneNode(this._right_),
+            cloneList(this._comando_));
     }
 
     @Override
@@ -40,16 +51,16 @@ public final class AParaComando extends PComando
         ((Analysis) sw).caseAParaComando(this);
     }
 
-    public PParaInicio getParaInicio()
+    public PVar getVar()
     {
-        return this._paraInicio_;
+        return this._var_;
     }
 
-    public void setParaInicio(PParaInicio node)
+    public void setVar(PVar node)
     {
-        if(this._paraInicio_ != null)
+        if(this._var_ != null)
         {
-            this._paraInicio_.parent(null);
+            this._var_.parent(null);
         }
 
         if(node != null)
@@ -62,19 +73,19 @@ public final class AParaComando extends PComando
             node.parent(this);
         }
 
-        this._paraInicio_ = node;
+        this._var_ = node;
     }
 
-    public PParaFim getParaFim()
+    public TNInteiro getLeft()
     {
-        return this._paraFim_;
+        return this._left_;
     }
 
-    public void setParaFim(PParaFim node)
+    public void setLeft(TNInteiro node)
     {
-        if(this._paraFim_ != null)
+        if(this._left_ != null)
         {
-            this._paraFim_.parent(null);
+            this._left_.parent(null);
         }
 
         if(node != null)
@@ -87,30 +98,94 @@ public final class AParaComando extends PComando
             node.parent(this);
         }
 
-        this._paraFim_ = node;
+        this._left_ = node;
+    }
+
+    public TNInteiro getRight()
+    {
+        return this._right_;
+    }
+
+    public void setRight(TNInteiro node)
+    {
+        if(this._right_ != null)
+        {
+            this._right_.parent(null);
+        }
+
+        if(node != null)
+        {
+            if(node.parent() != null)
+            {
+                node.parent().removeChild(node);
+            }
+
+            node.parent(this);
+        }
+
+        this._right_ = node;
+    }
+
+    public LinkedList<PComando> getComando()
+    {
+        return this._comando_;
+    }
+
+    public void setComando(List<?> list)
+    {
+        for(PComando e : this._comando_)
+        {
+            e.parent(null);
+        }
+        this._comando_.clear();
+
+        for(Object obj_e : list)
+        {
+            PComando e = (PComando) obj_e;
+            if(e.parent() != null)
+            {
+                e.parent().removeChild(e);
+            }
+
+            e.parent(this);
+            this._comando_.add(e);
+        }
     }
 
     @Override
     public String toString()
     {
         return ""
-            + toString(this._paraInicio_)
-            + toString(this._paraFim_);
+            + toString(this._var_)
+            + toString(this._left_)
+            + toString(this._right_)
+            + toString(this._comando_);
     }
 
     @Override
     void removeChild(@SuppressWarnings("unused") Node child)
     {
         // Remove child
-        if(this._paraInicio_ == child)
+        if(this._var_ == child)
         {
-            this._paraInicio_ = null;
+            this._var_ = null;
             return;
         }
 
-        if(this._paraFim_ == child)
+        if(this._left_ == child)
         {
-            this._paraFim_ = null;
+            this._left_ = null;
+            return;
+        }
+
+        if(this._right_ == child)
+        {
+            this._right_ = null;
+            return;
+        }
+
+        if(this._comando_.remove(child))
+        {
             return;
         }
 
@@ -121,16 +196,40 @@ public final class AParaComando extends PComando
     void replaceChild(@SuppressWarnings("unused") Node oldChild, @SuppressWarnings("unused") Node newChild)
     {
         // Replace child
-        if(this._paraInicio_ == oldChild)
+        if(this._var_ == oldChild)
         {
-            setParaInicio((PParaInicio) newChild);
+            setVar((PVar) newChild);
             return;
         }
 
-        if(this._paraFim_ == oldChild)
+        if(this._left_ == oldChild)
         {
-            setParaFim((PParaFim) newChild);
+            setLeft((TNInteiro) newChild);
             return;
+        }
+
+        if(this._right_ == oldChild)
+        {
+            setRight((TNInteiro) newChild);
+            return;
+        }
+
+        for(ListIterator<PComando> i = this._comando_.listIterator(); i.hasNext();)
+        {
+            if(i.next() == oldChild)
+            {
+                if(newChild != null)
+                {
+                    i.set((PComando) newChild);
+                    newChild.parent(this);
+                    oldChild.parent(null);
+                    return;
+                }
+
+                i.remove();
+                oldChild.parent(null);
+                return;
+            }
         }
 
         throw new RuntimeException("Not a child.");

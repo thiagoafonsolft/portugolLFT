@@ -7,7 +7,7 @@ import compilador.analysis.*;
 @SuppressWarnings("nls")
 public final class Start extends Node
 {
-    private PPrograma _pPrograma_;
+    private PProgram _pProgram_;
     private EOF _eof_;
 
     public Start()
@@ -16,10 +16,10 @@ public final class Start extends Node
     }
 
     public Start(
-        @SuppressWarnings("hiding") PPrograma _pPrograma_,
+        @SuppressWarnings("hiding") PProgram _pProgram_,
         @SuppressWarnings("hiding") EOF _eof_)
     {
-        setPPrograma(_pPrograma_);
+        setPProgram(_pProgram_);
         setEOF(_eof_);
     }
 
@@ -27,7 +27,7 @@ public final class Start extends Node
     public Object clone()
     {
         return new Start(
-            cloneNode(this._pPrograma_),
+            cloneNode(this._pProgram_),
             cloneNode(this._eof_));
     }
 
@@ -37,16 +37,16 @@ public final class Start extends Node
         ((Analysis) sw).caseStart(this);
     }
 
-    public PPrograma getPPrograma()
+    public PProgram getPProgram()
     {
-        return this._pPrograma_;
+        return this._pProgram_;
     }
 
-    public void setPPrograma(PPrograma node)
+    public void setPProgram(PProgram node)
     {
-        if(this._pPrograma_ != null)
+        if(this._pProgram_ != null)
         {
-            this._pPrograma_.parent(null);
+            this._pProgram_.parent(null);
         }
 
         if(node != null)
@@ -59,7 +59,7 @@ public final class Start extends Node
             node.parent(this);
         }
 
-        this._pPrograma_ = node;
+        this._pProgram_ = node;
     }
 
     public EOF getEOF()
@@ -90,9 +90,9 @@ public final class Start extends Node
     @Override
     void removeChild(Node child)
     {
-        if(this._pPrograma_ == child)
+        if(this._pProgram_ == child)
         {
-            this._pPrograma_ = null;
+            this._pProgram_ = null;
             return;
         }
 
@@ -108,9 +108,9 @@ public final class Start extends Node
     @Override
     void replaceChild(Node oldChild, Node newChild)
     {
-        if(this._pPrograma_ == oldChild)
+        if(this._pProgram_ == oldChild)
         {
-            setPPrograma((PPrograma) newChild);
+            setPProgram((PProgram) newChild);
             return;
         }
 
@@ -127,7 +127,7 @@ public final class Start extends Node
     public String toString()
     {
         return "" +
-            toString(this._pPrograma_) +
+            toString(this._pProgram_) +
             toString(this._eof_);
     }
 }

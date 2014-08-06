@@ -21,6 +21,7 @@ public class Lexico extends Lexer {
     TComentario comentario = null;
     String teste = "";
     int linha = 0;
+    int igualCount = 0;
 
     public Lexico(PushbackReader in) {
         super(in);
@@ -81,6 +82,6 @@ public class Lexico extends Lexer {
                     comentario = null;
                 }
             }
-        }
+        }        
     }
 }
