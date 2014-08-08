@@ -318,7 +318,11 @@ public class formPrincipal extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new formPrincipal().setVisible(true);
+                //new formPrincipal().setVisible(true);
+                formPrincipal form = new formPrincipal();
+                form.setTitle("Analisador");
+                form.setLocationRelativeTo(null);
+                form.setVisible(true);
             }
         });
     }

@@ -9,8 +9,9 @@ INDEX VERSION 1.126+C:\Documents and Settings\Affonso\Desktop\portugolLFT\.metad
 967617545.index
 168004947.index
 1056889975.index
-2275752207.index
 3945744252.index
+2275752207.index
 2956835398.index
 3170043478.index
 3103715285.index
+3837540980.index
